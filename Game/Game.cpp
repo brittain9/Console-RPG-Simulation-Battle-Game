@@ -24,7 +24,7 @@ T getInput(std::string message)
 
 
 template <typename T>
-up_entity_t createPlayer(int points, float baseHealth, int baseAttack, int baseDefense)
+up_entity_t createPlayer(float baseHealth, int baseAttack, int baseDefense)
 {
 	// Takes user input to create a custom player and returns unique_pointer to the dynamically allocated entity.
 	// Apparently templates cannot be put in seperate CPP files :(
@@ -33,19 +33,18 @@ up_entity_t createPlayer(int points, float baseHealth, int baseAttack, int baseD
 	int attackUpgrade{ 0 };
 	int defenseUpgrade{ 0 };
 
-	const int initialPoints{ points };
 	bool loop{ true };
 
 	while (loop)
 	{
-		points = initialPoints;
 
-		name = getInput<string>("\nPlease enter your name: ");
-		printf("\n\tName: %s | Health: %.0f | Attack: %i | Defense: %i\n\nYou have %i points to upgrade your player. 1 point = +1 attack, +1 defense, or +10 health\n", name.c_str(), baseHealth, baseAttack, baseDefense, points);
+		printf("\nEnter your champions name: ");
+		std::getline(cin, name);
+		printf("\n\tName: %s | Health: %.0f | Attack: %i | Defense: %i\n\nYou have %i points to upgrade your player. 1 point = +1 attack, +1 defense, or +10 health\n", name.c_str(), baseHealth, baseAttack, baseDefense, MAX_POINTS);
 
 		while (true)
 		{
-			points = initialPoints;
+			int points = MAX_POINTS ;
 
 			healthUpgrade = getInput<int>("\nEnter the points to spend on health: ");
 			if (healthUpgrade > points)
@@ -99,7 +98,7 @@ void printWelcome()
 	printf("Welcome to Alex's Console RPG Battle Simulation Game!\n ");
 	while (true)
 	{
-		int option = getInput<int>("\nEnter 1 for more information.\nEnter 2 to begin : ");
+		int option = getInput<int>("\nEnter 1 for more information.\nEnter 2 to begin: ");
 		switch (option)
 		{
 		case 1:
@@ -117,23 +116,13 @@ void printWelcome()
 
 int main()
 {
-	//printWelcome();
-	//up_entity_t player = createPlayer<Entity>(10, 100, 1, 1);
-	//up_entity_t entity1 = createEntity("Alex", 120, 3, 6);
-	//up_entity_t entity2 = createEntity("Alexander", 150, 4, 3);
-
 	Timer t;
+	//printWelcome();
+	//up_entity_t entity1 = createPlayer<Entity>( 100, 1, 1);
+	up_entity_t entity1 = createEntity("Octavius", 150,8, 3);
+	up_entity_t entity2 = createEntity("Jadius", 150, 3, 8);
+	simulate(1000, entity1.get(), entity2.get(), true, true);
 
-	try
-	{
-		testRandomNumberGenerationPercent(1000000, 100, false);
-	}
-	catch (const char* error)
-	{
-		std::cerr << "Error(" << error << ")";
-	}
-
-	cout << "\nTime elapsed: " << t.elapsed();
-	
+	std::cout << "\n\n\t" << t.elapsed();
 	return 0;
 }
