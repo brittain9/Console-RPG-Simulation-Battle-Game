@@ -2,9 +2,6 @@
 ### The idea of the game is for the two entities to fight each other using the simulate() function. Two entities will then fight a specified number of times and then the results of the fights will be printed. The winner is the entity who wins the majority of the simulated fights.
 #### You can create your own entity using createPlayer() and allocate MAX_POINTS points to upgrade the player's health, attack, or defense or just use the createEntity() directly to skip the dialogue.
 ##### TODO:
-Add different types of entities with unique abilities.
-
-Implement simple "AI" to decide if the entity should attack, sit back and heal, or use their ability.
 
 Balance all of this :( (By far the most annoying part of creating this game, attack points are OP rn)
 
