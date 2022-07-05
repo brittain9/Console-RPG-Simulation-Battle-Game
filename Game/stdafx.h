@@ -61,6 +61,6 @@ const float HUMAN_POTION_RATE = .4f;
 // More aggresive than humans
 const float GOBLIN_SIT_BACK_RATE = .2f;
 // Chance goblin will attempt bribe if has coins
-const float GOBLIN_BRIBE_RATE = .45f;
+const float GOBLIN_BRIBE_RATE = .4f;
 // Chance bribe is successful
 const float GOBLIN_BRIBE_CHANCE = .25f;

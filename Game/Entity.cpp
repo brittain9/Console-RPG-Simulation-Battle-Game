@@ -191,7 +191,6 @@ void Goblin::EntityFightAI(Entity* defender, bool printAllMessages, bool printIm
 			// If successful bribe
 			// Make goblin win
 			defender->setHealth(0);
-			defender->_checkIfAlive();
 			printf("\n%s has taken the gold coin and ran away. %s wins!\n", defender->getName().c_str(), this->getName().c_str());
 		}
 		// used a coin
@@ -231,7 +230,7 @@ void Entity::_attack(Entity* defender, bool printAllMessages, bool printImportan
 		defender->m_cur_health -= secondAttackerDamage;
 		defender->m_isAlive = defender->_checkIfAlive();
 		if(printImportantMessages)
-			printf("%s critically strikes %s for %.0f damage!\nHe takes no damage in the masterful attack.\n", this->m_name.c_str(), defender->m_name.c_str(), secondAttackerDamage );
+			printf("\n%s critically strikes %s for %.0f damage!\nHe takes no damage in the masterful attack.\n", this->m_name.c_str(), defender->m_name.c_str(), secondAttackerDamage );
 	}
 	else if (rng() % 10000 < (int)(defenderStats[2] * 1000))
 		// If defender reflect damage
@@ -240,7 +239,7 @@ void Entity::_attack(Entity* defender, bool printAllMessages, bool printImportan
 		this->m_cur_health -= defenderTotalDamage;
 		this->m_isAlive = this->_checkIfAlive();
 		if (printImportantMessages)
-			printf("%s parries %s dealing %.0f damage and reflecting %.0f damage back to the attacker!\nHe takes no damage in the masterful defense.\n", defender->m_name.c_str(), this->m_name.c_str(), secondDefenderDamage, secondAttackerDamage * REFLECT_DAMAGE_MULTI);
+			printf("\n%s parries %s dealing %.0f damage and reflecting %.0f damage back to the attacker!\nHe takes no damage in the masterful defense.\n", defender->m_name.c_str(), this->m_name.c_str(), secondDefenderDamage, secondAttackerDamage * REFLECT_DAMAGE_MULTI);
 	}
 	else
 	{

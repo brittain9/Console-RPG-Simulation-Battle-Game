@@ -78,8 +78,6 @@ public:
 	void EntityFightAI(Entity* defender, bool printAllMessages, bool printImportantMessages) override;
 };
 
-up_entity_t createHuman(std::string n, float h, int a, int d, int potions);
-up_entity_t createGoblin(std::string n, float h, int a, int d, int coins);
 
 std::array<Entity*, 2> fight(Entity* ent1, Entity* ent2, bool printAllMessages, bool printImportantMessages);
 

@@ -1,6 +1,52 @@
 #include "stdafx.h"
 #include "Entity.h"
 
+// Templates have to be in Main.cpp for ease
+
+// Declarations, definitions at bottom
+template <typename T>
+T getInput(std::string message);
+
+template<typename T>
+up_entity_t createEntity(std::string n, float h, int a, int d, int ability);
+
+up_entity_t createPlayer(float baseHealth, int baseAttack, int baseDefense);
+
+void printWelcome()
+{
+	printf("Welcome to Alex's Console RPG Battle Simulation Game!\n ");
+	while (true)
+	{
+		int option = getInput<int>("\nEnter 1 for more information.\nEnter 2 to begin: ");
+		switch (option)
+		{
+		case 1:
+			printf("\nmore information\n ");
+			continue;
+
+		case 2:
+			break;
+		default:
+			printf("\nPlease enter either 1 for more information or 2 to begin: ");
+		}
+		break;
+	}
+}
+
+int main()
+{
+	Timer t;
+	printWelcome();
+	up_entity_t player = createPlayer( 200, 1, 1);
+	up_entity_t ent1 = createEntity<Human>("Humano", 250,3, 2,2);
+	//up_entity_t ent2 = createEntity<Goblin>("Goblino", 200, 5, 5, 3);
+	simulateSimulations(100, ent1.get(),	player.get(), false, true);
+
+
+	std::cout << "\n\n\t" << t.elapsed();
+	return 0;
+}
+
 template<typename T>
 T getInput(std::string message)
 {
@@ -22,12 +68,20 @@ T getInput(std::string message)
 
 }
 
+template<typename T>
+up_entity_t createEntity(std::string n, float h, int a, int d, int ability)
+{
+	up_entity_t entityPtr = std::make_unique<T>(n, h, a, d, ability);
+	return entityPtr;
+}
 
-template <typename T>
+
 up_entity_t createPlayer(float baseHealth, int baseAttack, int baseDefense)
 {
 	// Takes user input to create a custom player and returns unique_pointer to the dynamically allocated entity.
-	// Apparently templates cannot be put in seperate CPP files :(
+
+	int entityType = getInput<int>("Choose your entity type:\n0 for human.\n1 for goblin\nEntity Type: ");
+
 	string name{};
 	int healthUpgrade{ 0 };
 	int attackUpgrade{ 0 };
@@ -44,7 +98,7 @@ up_entity_t createPlayer(float baseHealth, int baseAttack, int baseDefense)
 
 		while (true)
 		{
-			int points = MAX_POINTS ;
+			int points = MAX_POINTS;
 
 			healthUpgrade = getInput<int>("\nEnter the points to spend on health: ");
 			if (healthUpgrade > points)
@@ -88,42 +142,22 @@ up_entity_t createPlayer(float baseHealth, int baseAttack, int baseDefense)
 		printf("\nHere is your player:\n\n\tName: %s | Health: %.0f | Attack: %i | Defense: %i\n\nWould you like to restart creation? (1 for yes, 0 to continue): ", name.c_str(), baseHealth + 10.0 * healthUpgrade, baseAttack + attackUpgrade, baseDefense + defenseUpgrade);
 		cin >> loop;
 	}
-	up_entity_t playerPtr = std::make_unique<T>(name, baseHealth + 10.0f * healthUpgrade, baseAttack + attackUpgrade, baseDefense + defenseUpgrade);
-	return playerPtr;
-}
-
-
-void printWelcome()
-{
-	printf("Welcome to Alex's Console RPG Battle Simulation Game!\n ");
-	while (true)
+	switch (entityType)
 	{
-		int option = getInput<int>("\nEnter 1 for more information.\nEnter 2 to begin: ");
-		switch (option)
-		{
-		case 1:
-			printf("\nmore information\n ");
-			continue;
-
-		case 2:
-			break;
-		default:
-			printf("\nPlease enter either 1 for more information or 2 to begin: ");
-		}
-		break;
+	case 0: // Human
+	{
+		up_entity_t playerHumanPtr = createEntity<Human>(name, baseHealth + 10.0f * healthUpgrade, baseAttack + attackUpgrade, baseDefense + defenseUpgrade, 1);
+		return playerHumanPtr;
 	}
+	case 1: // Goblin
+	{
+		up_entity_t playerGoblinPtr = createEntity<Goblin>(name, baseHealth + 10.0f * healthUpgrade, baseAttack + attackUpgrade, baseDefense + defenseUpgrade, 1);
+		return playerGoblinPtr;
+	}
+	default:
+		printf("\n\n\tYou entered an invalid entity type which I have not handled for yet...  Abort.\n\n");
+		exit(1);
+	}
+
 }
 
-int main()
-{
-	Timer t;
-	//printWelcome();
-	//up_entity_t entity1 = createPlayer<Entity>( 100, 1, 1);
-	up_entity_t ent1 = createHuman("Humano", 200,5, 5,1);
-	up_entity_t ent2 = createGoblin("Goblino", 200, 5, 5, 1);
-	simulateSimulations(100, ent1.get(), ent2.get(), true, true);
-
-	std::cout << ent1->printClass() << ent2->printClass();
-	std::cout << "\n\n\t" << t.elapsed();
-	return 0;
-}
