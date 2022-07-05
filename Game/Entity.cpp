@@ -24,13 +24,51 @@ std::vector<float> Entity::getDefenseStats()
 	return DamVec;
 }
 
-up_entity_t createEntity(std::string n, float h, int a, int d)
+
+up_entity_t createHuman(std::string n, float h, int a, int d, int potions)
 {
-	up_entity_t entityPtr = std::make_unique<Entity>(n, h, a, d);
-	return entityPtr;
+	up_entity_t humanPtr = std::make_unique<Human>(n, h, a, d, potions);
+	return humanPtr;
+}
+up_entity_t createGoblin(std::string n, float h, int a, int d, int coins)
+{
+	up_entity_t goblinPtr = std::make_unique<Goblin>(n, h, a, d, coins);
+	return goblinPtr;
 }
 
-Entity* simulate(int sims, Entity* ent1, Entity* ent2, bool printAllMessages, bool PrintImportantMessages)
+
+Entity* simulateSimulations(int sims, Entity* ent1, Entity* ent2, bool printAllMessages, bool PrintImportantMessages)
+{
+	if(sims > 10000)
+	{
+		printf("If you want to do this change the number in the function. That is over 100 Million simulations.");
+		return nullptr;
+	}
+
+	int ent1Score{ 0 };
+	int ent2Score{ 0 };
+	int drawScore{ 0 };
+
+	for (int i{ 0 }; i < sims; i++)
+	{
+		Entity* winner = simulate(sims, ent1, ent2, printAllMessages, PrintImportantMessages);
+		if (winner == ent1)
+			ent1Score++;
+		else if (winner == ent2)
+			ent2Score++;
+		else
+			drawScore++;
+	}
+	printf("\n\nIn %i sims of %i sims!\t||\t%s Score: %i\t\t%s Score: %i\t\tDraws: %i\t||\n\n", sims, sims, ent1->getName().c_str(), ent1Score, ent2->getName().c_str(), ent2Score, drawScore);
+	if (ent1Score > ent2Score)
+		printf("%s is the champion! He will be moving to the next round!", ent1->getName().c_str(), sims, ent2->getName().c_str());
+	else
+		printf("%s is the champion! He will be moving to the next round!", ent2->getName().c_str(), sims, ent1->getName().c_str());
+
+	return ent1Score > ent2Score ? ent1 : ent2;
+}
+
+Entity* simulate(int sims, Entity* ent1, Entity* ent2, bool printAllMessages, bool printImportantMessages)
 {
 	int ent1Score{ 0 };
 	int ent2Score{ 0 };
@@ -38,7 +76,7 @@ Entity* simulate(int sims, Entity* ent1, Entity* ent2, bool printAllMessages, bo
 
 	for (int i{ 0 }; i < sims; i++)
 	{
-		std::array<Entity*, 2> winLoss = fight(ent1, ent2, printAllMessages, PrintImportantMessages);
+		std::array<Entity*, 2> winLoss = fight(ent1, ent2, printAllMessages, printImportantMessages);
 		if (winLoss[0] == ent1)
 			ent1Score++;
 		else if (winLoss[0] == ent2)
@@ -48,11 +86,14 @@ Entity* simulate(int sims, Entity* ent1, Entity* ent2, bool printAllMessages, bo
 		else
 			std::cerr << "Should never happen";
 	}
-	printf("\n\n|\t%s Score: %i\t\t%s Score: %i\t\tDraws: %i\t|\n\n",ent1->getName().c_str(), ent1Score, ent2->getName().c_str(), ent2Score, drawScore);
+	if (printImportantMessages)
+		printf("\n\n|\t%s Score: %i\t\t%s Score: %i\t\tDraws: %i\t|\n\n",ent1->getName().c_str(), ent1Score, ent2->getName().c_str(), ent2Score, drawScore);
 	if (ent1Score > ent2Score)
-		printf("%s is the champion! He will be moving to the next round!", ent1->getName().c_str(), sims, ent2->getName().c_str());
+		if (printImportantMessages)
+			printf("%s is the champion! He will be moving to the next round!", ent1->getName().c_str(), sims, ent2->getName().c_str());
 	else
-		printf("%s is the champion! He will be moving to the next round!", ent2->getName().c_str(), sims, ent1->getName().c_str());
+		if (printImportantMessages)
+			printf("%s is the champion! He will be moving to the next round!", ent2->getName().c_str(), sims, ent1->getName().c_str());
 
 	return ent1Score > ent2Score ? ent1 : ent2;
 }
@@ -62,9 +103,9 @@ std::array<Entity*, 2> fight(Entity* ent1, Entity* ent2, bool printAllMessages, 
 	// Make two entities fight. First person starts randomly. Returns array of entities: index[0] = winner, index[1] = loser.
 	
 	// Switch to make it 50% for who starts first. First person obviously has advantage.
-	ent1->setHealth();
+	ent1->setMaxHealth();
 	ent1->setAlive();
-	ent2->setHealth();
+	ent2->setMaxHealth();
 	ent2->setAlive();
 
 	switch (rng() % 2)
@@ -73,51 +114,100 @@ std::array<Entity*, 2> fight(Entity* ent1, Entity* ent2, bool printAllMessages, 
 		// ent1 starts first.
 		while(ent1->_checkIfAlive() && ent2->_checkIfAlive())
 		{
-			ent1->_attack(ent2,printAllMessages, printImportantMessages);
-			if (ent2->_checkIfAlive())
-				ent2->_attack(ent1, printAllMessages, printImportantMessages);
+			ent1->EntityFightAI(ent2, printAllMessages, printImportantMessages);
+			if(ent2->_checkIfAlive())
+				// if second attacker isnt already dead.
+				ent2->EntityFightAI(ent1, printAllMessages, printImportantMessages);
 		}
 		break;
 	case 1:
 		// ent2 starts first.
 		while (ent1->_checkIfAlive() && ent2->_checkIfAlive())
 		{
-			ent2->_attack(ent1, printAllMessages, printImportantMessages);
+			ent2->EntityFightAI(ent1, printAllMessages, printImportantMessages);
 			if (ent1->_checkIfAlive())
-				ent1->_attack(ent2, printAllMessages, printImportantMessages);
+				ent1->EntityFightAI(ent2, printAllMessages, printImportantMessages);
 		}
 		break;
 	}
+
 	if (ent1->_checkIfAlive())
 	{
 		std::array<Entity*, 2> WinLossVec = { ent1, ent2 };
-		printf("\n%s has defeated %s in battle!\n", ent1->getName().c_str(), ent2->getName().c_str());
+		if(printImportantMessages)
+			printf("\n%s has defeated %s in battle!\n", ent1->getName().c_str(), ent2->getName().c_str());
 		return WinLossVec;
 	}
 	else if (ent2->_checkIfAlive())
 	{
 		std::array<Entity*, 2> WinLossVec = { ent2, ent1 };
-		printf("\n%s has defeated %s in battle!\n", ent2->getName().c_str(), ent1->getName().c_str());
+		if (printImportantMessages)
+			printf("\n%s has defeated %s in battle!\n", ent2->getName().c_str(), ent1->getName().c_str());
 		return WinLossVec;
 	}
 	else
 	{
-		printf("\nEveryone has died in battle\nWar never changes.\n");
+		if (printImportantMessages)
+			printf("\nEveryone has died in battle\nWar never changes.\n");
 		std::array<Entity*, 2> WinLossVec = { nullptr };
 	}
 
 }
 
-//void Entity::EntityFightAI(Entity* defender)
-//{
-//	// Called by object to attack the other entity. Will use decision structure to decide if to attack or stay back and heal or use ability if implemented.
-//	while(this->_checkIfAlive() && defender->_checkIfAlive())
-//	{
-//		this->_attack(defender, true, true);
-//		if (defender->_checkIfAlive())
-//			defender->_attack(this, true, true);
-//	}
-//}
+void Human::EntityFightAI(Entity* defender, bool printAllMessages, bool printImportantMessages)
+{
+	// Called by object to attack the other entity. Will use decision structure to decide if to attack or stay back and heal or use ability if implemented.
+	if (this->getCurHealth() < this->getMaxHealth() / 4 && this->getPotions() > 0 && rng() % 100 < 75)
+	{
+		// If current health is 1/4 max health and has potions and 75% chance
+		this->setHealth(getCurHealth() + (this->getMaxHealth() * HUMAN_POTION_RATE));
+		//used a potion
+		this->m_healthPotions -= 1;
+		if(printImportantMessages)
+			printf("\n%s used a health potion and healed for %.0f points. His new health is %.0f!\n", this->getName().c_str(), this->getMaxHealth() * HUMAN_POTION_RATE, this->getCurHealth());
+
+	}else if (this->getCurHealth() < SIT_BACK_HEALTH_MAX_ALL * this->getMaxHealth() && rng() % 100 < (int)(HUMAN_SIT_BACK_RATE * 100) )
+	{
+		int healAmount = rng() % SIT_BACK_HEAL_AMOUNT_MAX;
+		this->setHealth(getCurHealth() + (float)healAmount);
+		if(printAllMessages)
+			printf("\n%s has decided to sit back and heal. They healed for %.0f health!\n", this->getName().c_str(), (float)healAmount);
+	}
+	else
+		this->_attack(defender, printAllMessages, printImportantMessages);
+}
+
+void Goblin::EntityFightAI(Entity* defender, bool printAllMessages, bool printImportantMessages)
+{
+	// Called by object to attack the other entity. Will use decision structure to decide if to attack or stay back and heal or use ability if implemented.
+
+	if (this->getCoins() > 0 && rng() % 100 < (int)(GOBLIN_BRIBE_RATE * 100))
+	{
+		// If has coins and Goblin Bribe Rate
+		if (printImportantMessages)
+			printf("\n%s is attempting to bribe %s. He offers him a shiny coin of solid gold!\n", this->getName().c_str(), defender->getName().c_str());
+		if(rng() % 100 < (int)(GOBLIN_BRIBE_CHANCE * 100))
+		{
+			// If successful bribe
+			// Make goblin win
+			defender->setHealth(0);
+			defender->_checkIfAlive();
+			printf("\n%s has taken the gold coin and ran away. %s wins!\n", defender->getName().c_str(), this->getName().c_str());
+		}
+		// used a coin
+		this->m_goldCoin -= 1;
+	}
+	else if (this->getCurHealth() < SIT_BACK_HEALTH_MAX_ALL * this->getMaxHealth() && rng() % 100 < (int)(GOBLIN_SIT_BACK_RATE * 100))
+	{
+		int healAmount = rng() % SIT_BACK_HEAL_AMOUNT_MAX;
+		this->setHealth(getCurHealth() + (float)healAmount);
+		if (printAllMessages)
+			printf("\n%s has decided to sit back and heal. They healed for %.0f health!\n", this->getName().c_str(), (float)healAmount);
+	}
+	else
+		this->_attack(defender, printAllMessages, printImportantMessages);
+
+}
 
 void Entity::_attack(Entity* defender, bool printAllMessages, bool printImportantMessages)
 {
@@ -141,7 +231,7 @@ void Entity::_attack(Entity* defender, bool printAllMessages, bool printImportan
 		defender->m_cur_health -= secondAttackerDamage;
 		defender->m_isAlive = defender->_checkIfAlive();
 		if(printImportantMessages)
-			printf("\n%s critically strikes %s for %.0f damage!\nHe takes no damage in the masterful attack.\n", this->m_name.c_str(), defender->m_name.c_str(), secondAttackerDamage );
+			printf("%s critically strikes %s for %.0f damage!\nHe takes no damage in the masterful attack.\n", this->m_name.c_str(), defender->m_name.c_str(), secondAttackerDamage );
 	}
 	else if (rng() % 10000 < (int)(defenderStats[2] * 1000))
 		// If defender reflect damage
@@ -150,7 +240,7 @@ void Entity::_attack(Entity* defender, bool printAllMessages, bool printImportan
 		this->m_cur_health -= defenderTotalDamage;
 		this->m_isAlive = this->_checkIfAlive();
 		if (printImportantMessages)
-			printf("\n%s parries %s dealing %.0f damage and reflecting %.0f damage back to the attacker!\nHe takes no damage in the masterful defense.\n", defender->m_name.c_str(), this->m_name.c_str(), secondDefenderDamage, secondAttackerDamage * REFLECT_DAMAGE_MULTI);
+			printf("%s parries %s dealing %.0f damage and reflecting %.0f damage back to the attacker!\nHe takes no damage in the masterful defense.\n", defender->m_name.c_str(), this->m_name.c_str(), secondDefenderDamage, secondAttackerDamage * REFLECT_DAMAGE_MULTI);
 	}
 	else
 	{
@@ -160,7 +250,7 @@ void Entity::_attack(Entity* defender, bool printAllMessages, bool printImportan
 		defender->m_isAlive = defender->_checkIfAlive();
 		this->m_isAlive = this->_checkIfAlive();
 		if(printAllMessages)
-			printf("\n%s attacks %s for %.0f damage.\n%s takes %.0f damage in the attack.\n", this->m_name.c_str(), defender->m_name.c_str(), secondAttackerDamage, this->m_name.c_str() ,secondDefenderDamage);
+			printf("%s attacks %s for %.0f damage.\n%s takes %.0f damage in the attack.\n", this->m_name.c_str(), defender->m_name.c_str(), secondAttackerDamage, this->m_name.c_str() ,secondDefenderDamage);
 	}
 }
 
@@ -173,21 +263,22 @@ bool Entity::_checkIfAlive()
 	if (!this->m_isAlive)
 		return false;
 
-	if(this->m_isAlive)
-		return true;
+	return true;
 }
 
-inline std::string Entity::getName()
-{
-	return m_name;
-}
 
-void Entity::setHealth()
+inline void Entity::setMaxHealth()
 {
 	m_cur_health = m_max_health;
 }
 
-void Entity::setAlive()
+inline void Entity::setHealth(float health)
+{
+	m_cur_health = health;
+}
+
+
+inline void Entity::setAlive()
 {
 	m_isAlive = true;
 }

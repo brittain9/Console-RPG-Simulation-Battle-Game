@@ -45,3 +45,22 @@ const float REFLECT_DAMAGE_MULTI = 1.0f;
 const float LEVEL_DEF_MULT = 0.5f;
 const int LEVEL_DEF_MAX = 1;
 const float LEVEL_REFLECT_CHANCE = 0.015f;
+
+// 50% cur health
+const float SIT_BACK_HEALTH_MAX_ALL = .5f;
+//  Max amount to heal if sit back.
+const int SIT_BACK_HEAL_AMOUNT_MAX = 5;
+
+
+
+const float HUMAN_SIT_BACK_RATE = .4f;
+// replenishes 40% of max health
+const float HUMAN_POTION_RATE = .4f;
+
+
+// More aggresive than humans
+const float GOBLIN_SIT_BACK_RATE = .2f;
+// Chance goblin will attempt bribe if has coins
+const float GOBLIN_BRIBE_RATE = .45f;
+// Chance bribe is successful
+const float GOBLIN_BRIBE_CHANCE = .25f;

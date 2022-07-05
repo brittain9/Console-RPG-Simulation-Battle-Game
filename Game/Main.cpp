@@ -119,10 +119,11 @@ int main()
 	Timer t;
 	//printWelcome();
 	//up_entity_t entity1 = createPlayer<Entity>( 100, 1, 1);
-	up_entity_t entity1 = createEntity("Octavius", 150,8, 3);
-	up_entity_t entity2 = createEntity("Jadius", 150, 3, 8);
-	simulate(1000, entity1.get(), entity2.get(), true, true);
+	up_entity_t ent1 = createHuman("Humano", 200,5, 5,1);
+	up_entity_t ent2 = createGoblin("Goblino", 200, 5, 5, 1);
+	simulateSimulations(2, ent1.get(), ent2.get(), true, true);
 
+	std::cout << ent1->printClass() << ent2->printClass();
 	std::cout << "\n\n\t" << t.elapsed();
 	return 0;
 }
